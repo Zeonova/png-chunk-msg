@@ -28,8 +28,9 @@ impl ChunkType {
     }
 
 
+    //  Safe-to-copy bit: bit 5 of fourth byte , 0 (uppercase) = unsafe to copy, 1 (lowercase) = safe to copy.
     pub fn is_safe_to_copy(&self) -> bool {
-        self.bytes()[3] & 0x20 != 0x20
+        self.bytes()[3] & 0x20 == 0x20
     }
 
     pub fn is_valid(&self) -> bool {
@@ -44,23 +45,30 @@ impl ChunkType {
 
 impl TryFrom<[u8; 4]> for ChunkType {
     type Error = Error;
-
-    fn try_from(bytes: [u8; 4]) -> Result<Self> {
-        todo!()
+    fn try_from(bytes: [u8; 4]) -> Result<ChunkType> {
+        for &byte in &bytes {
+            if !ChunkType::is_valid_byte(byte) {
+                return Err(Error::from("Invalid byte in chunk"));
+            }
+        }
+        Ok(ChunkType {  data: bytes })
     }
 }
 
 impl fmt::Display for ChunkType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        todo!()
+        write!(f, "{}", std::str::from_utf8(&self.data).unwrap_or("Invalid UTF-8"))
     }
 }
+
 
 impl FromStr for ChunkType {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self> {
-        todo!()
+        let bytes = s.as_bytes();
+        let data: [u8; 4] = bytes.try_into().map_err(|_| Error::from("ChunkType must be 4 bytes long"))?;
+        Ok(ChunkType::try_from(data)?)
     }
 }
 
