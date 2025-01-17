@@ -13,18 +13,18 @@ impl Chunk {
     // data  size  >= 0 
     pub const CRC_SIZE: usize = 4;
     pub const METADATA_SIZE : usize = Chunk::DATA_LENGTH_SIZE + Chunk::CHUNK_TYPE_SIZE + Chunk::CRC_SIZE;
-    fn new(chunk_type: ChunkType, data: Vec<u8>) -> Chunk {
+    pub fn new(chunk_type: ChunkType, data: Vec<u8>) -> Chunk {
         Chunk {
             chunk_type,
             data,
         }
     }
 
-    fn length(&self) -> u32 {
+    pub fn length(&self) -> u32 {
         self.data.len() as u32
     }
 
-    fn chunk_type(&self) -> &ChunkType{
+    pub fn chunk_type(&self) -> &ChunkType{
         &self.chunk_type
     }
 
@@ -38,10 +38,10 @@ impl Chunk {
         digest.update(&self.data);
         digest.finalize()
     }
-    fn data_as_string(&self) -> Result<String> {
+    pub fn data_as_string(&self) -> Result<String> {
         String::from_utf8(self.data.clone()).map_err(|_| Error::from("Invalid UTF-8"))
     }
-    fn as_bytes(&self) -> Vec<u8> {
+    pub fn as_bytes(&self) -> Vec<u8> {
         let mut bytes = Vec::new();
         bytes.extend_from_slice(&self.length().to_be_bytes());
         bytes.extend_from_slice(&self.chunk_type.bytes());
