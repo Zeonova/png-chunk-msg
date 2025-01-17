@@ -20,8 +20,7 @@ enum Commands {
 struct CommandArgs {
     list: Vec<String>,
 }
-
-
+//TODO: 注意检查一下追加自定块是，放在IEND块前后的区别，clap是否支持自动推断参数？
 fn main() {
     let cli = Cli::parse();
     match &cli.command {
@@ -53,7 +52,7 @@ where
     F: Fn(&Vec<String>),
 {    
     if args.list.len() < require {
-        eprintln!("Not enough arguments provided.");
+        eprintln!("\x1b[31mERROR\x1b[0m: Not enough arguments provided.");
     } else {
         logic(&args.list);
     }
