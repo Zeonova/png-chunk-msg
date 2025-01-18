@@ -14,8 +14,9 @@ impl Png {
         Png { chunks }
     }
 
-    fn append_chunk(&mut self, chunk: Chunk) {
-        self.chunks.push(chunk);
+    pub fn append_chunk(&mut self, chunk: Chunk) {
+        // 插入到倒数第二个位置，因为最后一个是IEND块,实际上放在IEND后面也不会有什么问题，但是依然遵循规范
+        self.chunks.insert(self.chunks.len()-1 ,chunk);
     }
 
    pub fn remove_first_chunk(&mut self, chunk_type: &str) -> Result<Chunk>{
@@ -30,15 +31,15 @@ impl Png {
         &Self::STANDARD_HEADER
     }
 
-    fn chunks(&self) -> &[Chunk] {
+    pub fn chunks(&self) -> &[Chunk] {
         &self.chunks
     }
 
-    fn chunk_by_type(&self, chunk_type: &str) -> Option<&Chunk> {
+    pub fn chunk_by_type(&self, chunk_type: &str) -> Option<&Chunk> {
         self.chunks.iter().find(|c| c.chunk_type().to_string() == chunk_type)
     }
 
-    fn as_bytes(&self) -> Vec<u8>{
+    pub fn as_bytes(&self) -> Vec<u8>{
         let mut bytes = Vec::new();
         bytes.extend_from_slice(self.header());
         for chunk in self.chunks() {
