@@ -25,7 +25,7 @@ jobs:
     - name: Zip package
       run: |
         mkdir -p upload_files
-        cp target/release  upload_files
+        cp target/release/png-chunk-msg-cli   upload_files
         tar -czvf upload_files/png-chunk-msg-cli-bin.tar.gz -C upload_files png-chunk-msg-cli 
         # -C 是指不包括目录本身
     - name: Publish zip
