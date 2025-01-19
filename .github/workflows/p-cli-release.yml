@@ -27,7 +27,7 @@ jobs:
       run: |
         curl -H "Authorization: token ${{ secrets.GH_TOKEN }}" https://api.github.com/user | jq
 
-    - name: Set file extension for Windows
+    - name: Set file extension for Windows and Zip package
       run: |
           # Set the binary name based on the platform
           if [[ "$RUNNER_OS" == "Windows" ]]; then
@@ -35,15 +35,12 @@ jobs:
           else
             BINARY_NAME="png-chunk-msg-cli"
           fi
-          
           echo "Binary name is $BINARY_NAME"
 
-    - name: Zip package
-      run: |
-        mkdir -p upload_files
-        cp target/release/$BINARY_NAME  upload_files
-        # -C 是指不包括目录本身
-        tar -czvf upload_files/png-chunk-msg-cli-${{ runner.os }}.tar.gz -C upload_files $BINARY_NAME
+          mkdir -p upload_files
+          cp target/release/$BINARY_NAME  upload_files
+          # -C 是指不包括目录本身
+          tar -czvf upload_files/png-chunk-msg-cli-${{ runner.os }}.tar.gz -C upload_files $BINARY_NAME
         
     - name: Publish zip
       uses: softprops/action-gh-release@v2
