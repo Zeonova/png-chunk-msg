@@ -1,4 +1,4 @@
-name: Package and Release png-chunk-msg-cli
+name: Package and Release png-chunk-msg-cli at Mac and Linux
 
 on:
   push:
@@ -11,11 +11,10 @@ env:
 
 jobs:
   build:
-
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]  # 定义支持的平台
+        os: [ubuntu-latest, macos-latest]  # 定义支持的平台
 
     steps:
     - uses: actions/checkout@v4
@@ -26,21 +25,12 @@ jobs:
     - name: Print GITHUB_TOKEN permissions
       run: |
         curl -H "Authorization: token ${{ secrets.GH_TOKEN }}" https://api.github.com/user | jq
-
-    - name: Set file extension for Windows and Zip package
+    - name: Zip package
       run: |
-          # Set the binary name based on the platform
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            BINARY_NAME="png-chunk-msg-cli.exe"
-          else
-            BINARY_NAME="png-chunk-msg-cli"
-          fi
-          echo "Binary name is $BINARY_NAME"
-
-          mkdir -p upload_files
-          cp target/release/$BINARY_NAME  upload_files
-          # -C 是指不包括目录本身
-          tar -czvf upload_files/png-chunk-msg-cli-${{ runner.os }}.tar.gz -C upload_files $BINARY_NAME
+        mkdir -p upload_files
+        cp target/release/png-chunk-msg-cli   upload_files
+        # -C 是指不包括目录本身
+        tar -czvf upload_files/png-chunk-msg-cli-${{ runner.os }}.tar.gz -C upload_files png-chunk-msg-cli 
         
     - name: Publish zip
       uses: softprops/action-gh-release@v2
