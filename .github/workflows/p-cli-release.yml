@@ -29,10 +29,9 @@ jobs:
         tar -czvf upload_files/png-chunk-msg-cli-bin.tar.gz -C upload_files png-chunk-msg-cli 
         # -C 是指不包括目录本身
     - name: Publish zip
-      uses: softprops/action-gh-release@v2.2.1
+      uses: softprops/action-gh-release@v2
       with:
         files: upload_files/*.tar.gz
-      env:
         token: ${{ secrets.GH_TOKEN }}
         
    
