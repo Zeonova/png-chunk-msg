@@ -118,7 +118,7 @@ fn open_png(path: &str) -> Result<Png> {
     Png::try_from(buffer.as_slice()).map_err(|e| e.into())
 }
 
-// TODO: 编写测试
+
 #[cfg(test)]
 mod tests {
     pub const CHUNK_TEST_DATA: &str = "Hello, world!";
