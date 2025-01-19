@@ -1,5 +1,5 @@
 [package]
-name = "png-cli"
+name = "png-chunk-msg-cli"
 version = "1.0.0"
 edition = "2021"
 
