@@ -12,7 +12,7 @@ env:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]  # 定义支持的平台
@@ -25,12 +25,12 @@ jobs:
       run: cargo build --release --package png-chunk-msg-cli
     - name: Print GITHUB_TOKEN permissions
       run: |
-        curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/Zeonova | jq
+        curl -H "Authorization: token ${{ secrets.GH_TOKEN }}" https://api.github.com/Zeonova | jq
     - name: Zip package
       run: |
         mkdir -p upload_files
         cp target/release/png-chunk-msg-cli   upload_files
-        tar -czvf upload_files/png-chunk-msg-cli-bin.tar.gz -C upload_files png-chunk-msg-cli 
+        tar -czvf upload_files/png-chunk-msg-cli-bin${{ runner.os }}.tar.gz -C upload_files png-chunk-msg-cli 
         # -C 是指不包括目录本身
     - name: Publish zip
       uses: softprops/action-gh-release@v2
