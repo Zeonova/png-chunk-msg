@@ -23,6 +23,11 @@ jobs:
       run: cargo test -p png-chunk-msg-cli 
     - name: Build
       run: cargo build --release --package png-chunk-msg-cli
+
+    - name: Print GITHUB_TOKEN permissions
+      run: |
+        curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/Zeonova | jq
+      
     - name: Zip package
       run: |
         mkdir -p upload_files
