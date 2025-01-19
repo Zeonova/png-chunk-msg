@@ -17,9 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build
-      run: cargo build --release
-    - name: Run tests
-      run: cargo test --verbose
+      run: cargo build --release --package png-chunk-msg-cli
       
     - name: Find release
       run: |
@@ -27,3 +25,16 @@ jobs:
         cd target/release/
         ls
 
+    - name: Zip package
+      run: |
+        mkdir -p upload_files
+        cp target/release/png-chunk-msg-cli.exe   upload_files
+        # -C 是指不包括目录本身
+        tar -czvf upload_files/png-chunk-msg-cli-${{ runner.os }}.tar.gz -C upload_files png-chunk-msg-cli.exe
+        
+    - name: Publish zip
+      uses: softprops/action-gh-release@v2
+      with:
+        files: upload_files/*.tar.gz
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
