@@ -28,6 +28,7 @@ impl Chunk {
         &self.chunk_type
     }
 
+    #[allow(dead_code)]
     fn data(&self) -> &[u8]{ 
         &self.data 
     }

@@ -79,7 +79,11 @@ impl TryFrom<&[u8]> for Png {
 
 impl std::fmt::Display for Png {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "PNG with {} chunks", self.chunks.len())
+        write!(f, "PNG HAS: {} chunks =>", self.chunks.len())?;
+        for chunk in self.chunks() {
+            write!(f, "\n{}", chunk)?;
+        }
+        Ok(())
     }
 }
 
