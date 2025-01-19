@@ -1,4 +1,4 @@
-name: Build and Release Subproject
+name: Build and Release SubProject
 
 on:
   push:
@@ -18,15 +18,9 @@ jobs:
     steps:
       # 1. 检出代码
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      # 2. 设置 Rust 环境
-      - name: Set up Rust
-        uses: actions/setup-rust@v1
-        with:
-          rust-version: 1.60.0  # 使用 Rust 版本
-
-      # 3. 根据标签选择性构建子项目
+      # 2. 根据标签选择性构建子项目
       - name: Build ${{ matrix.subproject }} for ${{ matrix.os }}
         run: |
           TAG_NAME=${GITHUB_REF##*/}  # 获取标签名（例如 'cli-release-v1.0.0'）
@@ -42,7 +36,7 @@ jobs:
             echo "Skipping build for $TAG_NAME on ${{ matrix.os }}."
           fi
 
-      # 4. 打包
+      # 3 打包
       - name: Create Release Assets
         run: |
           # 创建发布文件夹
@@ -53,7 +47,7 @@ jobs:
           
           # 压缩并创建发布包
           tar -czvf release/${{ matrix.subproject }}-${GITHUB_SHA}.tar.gz -C release ${{ matrix.subproject }}
-      # 5.提交文件
+      # 4.提交文件
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v1
         with:
