@@ -1,0 +1,37 @@
+name: Package and Release png-chunk-msg-cli
+
+on:
+  push:
+    tags:
+      - 'cli-release*'  # 触发条件：当推送以 'cli-release' 开头的标签时触发
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]  # 定义支持的平台
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Run tests
+      run: cargo test -p png-chunk-msg-cli 
+    - name: Build
+      run: cargo build --release --package png-chunk-msg-cli
+    - name: Zip package
+      run: |
+        mkdir -p upload_files
+        cp /target/release /upload_files
+        tar -czvf /upload_files/png-chunk-msg-cli-bin.tar.gz -C upload_files png-chunk-msg-cli # -C 是指不包括目录本身
+    - name: Publish zip
+      uses: softprops/action-gh-release@v2.2.1
+      with:
+        files: /upload_files/*.tar.gz
+   
+      
+      
+
