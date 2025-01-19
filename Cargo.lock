@@ -153,6 +153,9 @@ dependencies = [
 [[package]]
 name = "pngme"
 version = "0.1.0"
+dependencies = [
+ "core",
+]
 
 [[package]]
 name = "proc-macro2"

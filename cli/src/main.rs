@@ -48,7 +48,6 @@ struct DecodeOrRemoveArgs {
     chunk_type: String,
 }
 
-//  测试文件 /Users/kas/Downloads/IMG_0887.PNG
 fn main() {
     let cli = Cli::parse();
     match &cli.command {
@@ -64,9 +63,9 @@ fn main() {
             let path_buf = path.parent().map(|p| p.to_path_buf());
             if let Some( mut path_buf) = path_buf {
                 path_buf.push(format!("{}.png",args.chunk_type ));
-                println!("saved to {:?}", path_buf.display());
-                let mut new_file = File::create(path_buf).unwrap();
+                let mut new_file = File::create(&path_buf).unwrap();
                 new_file.write_all(&png.as_bytes()).unwrap();
+                println!("Saved to {:?}", path_buf.display());
             } else {
                 eprintln!("Failed to get parent directory.");
             }
@@ -117,4 +116,46 @@ fn open_png(path: &str) -> Result<Png> {
     let mut buffer = Vec::new();
     file.read_to_end(&mut buffer)?;
     Png::try_from(buffer.as_slice()).map_err(|e| e.into())
+}
+
+// TODO: 编写测试
+#[cfg(test)]
+mod tests {
+    pub const CHUNK_TEST_DATA: &str = "Hello, world!";
+
+
+#[test]
+fn test_encode_png() {
+    let img_path = "382px-PNG_Test.png";
+    let chunk_type = "ruSt";
+
+
+    let output = std::process::Command::new("cargo")
+        .arg("run")
+        .arg("encode")
+        .arg(img_path)
+        .arg(chunk_type)
+        .arg(CHUNK_TEST_DATA)
+        .output()
+        .expect("failed to execute process");
+
+    let stdout = String::from_utf8(output.stdout).unwrap();
+    assert!(stdout.contains("Saved"));
+}
+
+#[test]
+fn test_decode_png() {
+    let img_path = "ruSt.png";
+    let chunk_type = "ruSt";
+    let output = std::process::Command::new("cargo")
+        .arg("run")
+        .arg("decode")
+        .arg(img_path)
+        .arg(chunk_type)
+        .output()
+        .expect("failed to execute process");
+
+    let stdout = String::from_utf8(output.stdout).unwrap();
+    assert!(stdout.contains(CHUNK_TEST_DATA));
+}
 }

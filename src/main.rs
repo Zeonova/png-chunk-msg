@@ -1,8 +1,7 @@
 
 
-
 fn main()  {
-    todo!()
+    hello();
 }
 
 pub fn hello() {
