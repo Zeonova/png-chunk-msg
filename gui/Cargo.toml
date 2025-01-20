@@ -1,7 +1,9 @@
 [package]
-name = "png-chunk-msg-gui"
+name = "pcm-gui"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 core = { path = "../core" }
+iced = "0.13.1"
+rfd = "0.15.2"
