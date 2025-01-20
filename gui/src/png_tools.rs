@@ -6,11 +6,13 @@ use std::{
     str::FromStr,
 };
 
-pub fn Encode(png_path: &str, chunk_type: &str, chunk_data: &str) -> Result<String> {
+pub fn encode(png_path: &str, chunk_type: &str, chunk_data: &str) -> Result<String> {
     let mut png = open_png(png_path)?;
     let c_type = ChunkType::from_str(chunk_type)?;
     let chunk = Chunk::new(c_type, chunk_data.as_bytes().to_vec());
     png.append_chunk(chunk);
+
+    println!("{}", png.to_string());
     
     let path = Path::new(png_path);
     let mut path_buf = path
@@ -22,13 +24,29 @@ pub fn Encode(png_path: &str, chunk_type: &str, chunk_data: &str) -> Result<Stri
     new_file.write_all(&png.as_bytes())?;
     Ok(path_buf.display().to_string())
 }
-pub fn Decode() {}
+pub fn decode(png_path: &str, chunk_type: &str) -> Result<String> {
+    let png = open_png(png_path)?;
+    print!("chunk_type : {}",chunk_type);
+    let chunk = png.chunk_by_type(chunk_type).ok_or("Chunk Type not found.")?;
+    let chunk_data_str = chunk.data_as_string()?;
+    Ok(chunk_data_str)
+}
 
-pub fn Remove() {}
+pub fn remove(png_path: &str, chunk_type: &str) -> Result<String> {
+    let mut png = open_png(png_path)?;
+    png.remove_first_chunk(chunk_type)?;
+    let mut new_file = File::create(png_path)?;
+    new_file.write_all(&png.as_bytes())?;
+    Ok(png_path.to_string())
+}
 
-pub fn Print() {}
+pub fn print(png_path: &str)-> Result<String> {
+    let png = open_png(png_path)?;
+    Ok(png.to_string())
+}
 
 fn open_png(path: &str) -> Result<Png> {
+    println!("Opening PNG file: {}", path);
     let mut file = File::open(path)?;
     let mut buffer = Vec::new();
     file.read_to_end(&mut buffer)?;

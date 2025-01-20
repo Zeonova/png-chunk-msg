@@ -1,7 +1,7 @@
+use crate::{Error, Result};
 use std::convert::TryFrom;
 use std::fmt;
 use std::str::FromStr;
-use crate::{Error, Result};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ChunkType {
@@ -13,7 +13,7 @@ impl ChunkType {
         self.data
     }
 
-//    0x20 是一个十六进制值，它对应于二进制的 00100000, PNG 规范中总是检查第五位
+    //    0x20 是一个十六进制值，它对应于二进制的 00100000, PNG 规范中总是检查第五位
     pub fn is_critical(&self) -> bool {
         self.bytes()[0] & 0x20 != 0x20
     }
@@ -22,11 +22,9 @@ impl ChunkType {
         self.bytes()[1] & 0x20 != 0x20
     }
 
-
     pub fn is_reserved_bit_valid(&self) -> bool {
-        self.bytes()[2] & 0x20 != 0x20
+        Self::is_reserved_bit_valid_bytes(self.bytes())
     }
-
 
     //  Safe-to-copy bit: bit 5 of fourth byte , 0 (uppercase) = unsafe to copy, 1 (lowercase) = safe to copy.
     pub fn is_safe_to_copy(&self) -> bool {
@@ -34,11 +32,15 @@ impl ChunkType {
     }
 
     pub fn is_valid(&self) -> bool {
-        let validated =  self.bytes().iter().all(|&byte|  Self::is_valid_byte(byte));
+        let validated = self.bytes().iter().all(|&byte| Self::is_valid_byte(byte));
         validated && self.is_reserved_bit_valid()
     }
 
-    pub fn is_valid_byte(byte: u8) -> bool {
+    fn is_reserved_bit_valid_bytes(bytes: [u8; 4]) -> bool {
+         bytes[2] & 0x20 != 0x20
+    }
+
+    fn is_valid_byte(byte: u8) -> bool {
         byte >= b'a' && byte <= b'z' || (byte >= b'A' && byte <= b'Z')
     }
 }
@@ -46,34 +48,35 @@ impl ChunkType {
 impl TryFrom<[u8; 4]> for ChunkType {
     type Error = Error;
     fn try_from(bytes: [u8; 4]) -> Result<ChunkType> {
-        for &byte in &bytes {
-            if !ChunkType::is_valid_byte(byte) {
-                return Err(Error::from("Invalid byte in chunk"));
-            }
+        let validated =  bytes.iter().all(|&byte| Self::is_valid_byte(byte));
+        if !ChunkType::is_reserved_bit_valid_bytes(bytes) ||  !validated {
+            return Err(Error::from("Invalid byte in chunk"));
         }
-        Ok(ChunkType {  data: bytes })
+        Ok(ChunkType { data: bytes })
     }
 }
 
 impl fmt::Display for ChunkType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", std::str::from_utf8(&self.data).unwrap_or("Invalid UTF-8"))
+        write!(
+            f,
+            "{}",
+            std::str::from_utf8(&self.data).unwrap_or("Invalid UTF-8")
+        )
     }
 }
-
 
 impl FromStr for ChunkType {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self> {
         let bytes = s.as_bytes();
-        let data: [u8; 4] = bytes.try_into().map_err(|_| Error::from("ChunkType must be 4 bytes long"))?;
+        let data: [u8; 4] = bytes
+            .try_into()
+            .map_err(|_| Error::from("ChunkType must be 4 bytes long"))?;
         Ok(ChunkType::try_from(data)?)
     }
 }
-
-
-
 
 #[cfg(test)]
 mod tests {
