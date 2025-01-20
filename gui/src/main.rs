@@ -1,4 +1,6 @@
-use iced::widget::{button, center, column, horizontal_space, row, text, text_input};
+use iced::widget::{
+    button, center, column, horizontal_space, row, scrollable, text, text_input, vertical_space,
+};
 use iced::Element;
 use rfd::FileDialog;
 
@@ -35,7 +37,7 @@ impl Application {
                 }
             }
             Message::ChunkTypeInputChanged(text) => {
-                if text.len() > 4  || text.chars().any(|c| !c.is_ascii_alphabetic()) {
+                if text.len() > 4 || text.chars().any(|c| !c.is_ascii_alphabetic()) {
                     return;
                 }
                 self.chunk_type = text;
@@ -62,7 +64,7 @@ impl Application {
                         self.output_msg = format!("Error: {}", e);
                     }
                 }
-            },
+            }
             Message::RemoveButtonPressed => {
                 match png_tools::remove(&self.file_path, &self.chunk_type) {
                     Ok(path) => {
@@ -72,23 +74,20 @@ impl Application {
                         self.output_msg = format!("Error: {}", e);
                     }
                 }
-            },
-            Message::PrintButtonPressed => {
-                match png_tools::print(&self.file_path) {
-                    Ok(data) => {
-                        self.output_msg = format!("PNG data: {}", data);
-                    }
-                    Err(e) => {
-                        self.output_msg = format!("Error: {}", e);
-                    }
+            }
+            Message::PrintButtonPressed => match png_tools::print(&self.file_path) {
+                Ok(data) => {
+                    self.output_msg = format!("PNG data: {}", data);
+                }
+                Err(e) => {
+                    self.output_msg = format!("Error: {}", e);
                 }
             },
         }
     }
 
     fn view(&self) -> Element<Message> {
-        let able = !(self.file_path.is_empty()
-            || self.chunk_type.is_empty());
+        let able = !(self.file_path.is_empty() || self.chunk_type.is_empty());
 
         let encode_able = !self.file_path.is_empty()
             && !self.chunk_type.is_empty()
@@ -101,16 +100,20 @@ impl Application {
         .spacing(10);
 
         let chunk = row![
-            text_input("CHUNK TYPE 4 BYTE", &self.chunk_type).on_input(Message::ChunkTypeInputChanged),
+            text_input("CHUNK TYPE 4 BYTE", &self.chunk_type)
+                .on_input(Message::ChunkTypeInputChanged),
             text_input("CHUNK DATA", &self.chunk_data).on_input(Message::ChunkDataInputChanged),
             horizontal_space(),
-            button(text("ENCODE")).on_press_maybe(encode_able.then(|| Message::EncodeButtonPressed)),
+            button(text("ENCODE"))
+                .on_press_maybe(encode_able.then(|| Message::EncodeButtonPressed)),
             button(text("DECODE")).on_press_maybe(able.then(|| (Message::DecodeButtonPressed))),
             button(text("REMOVE")).on_press_maybe(able.then(|| (Message::RemoveButtonPressed))),
-            button(text("PRINT")).on_press_maybe((!self.file_path.is_empty()).then(|| (Message::PrintButtonPressed))),
+            button(text("PRINT")).on_press_maybe(
+                (!self.file_path.is_empty()).then(|| (Message::PrintButtonPressed))
+            ),
         ]
         .spacing(10);
-        let output = text(&self.output_msg);
+        let output = scrollable(column![text(&self.output_msg), vertical_space().height(30)]);
         let content = column![file, chunk, output].spacing(10).padding(10);
         center(content).into()
     }
