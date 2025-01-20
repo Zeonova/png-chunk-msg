@@ -63,6 +63,7 @@ The GUI offers a more intuitive way to interact with the PNG message encoding/de
 - Rust (latest stable version)
 - Cargo (Rust package manager)
 - Iced (for the GUI)
+- Clap (for the CLI)
 
 ## Installation
 
